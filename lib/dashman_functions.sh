@@ -209,7 +209,7 @@ _check_dependencies() {
     (which perl 2>&1) >/dev/null || MISSING_DEPENDENCIES="${MISSING_DEPENDENCIES}perl "
     (which git  2>&1) >/dev/null || MISSING_DEPENDENCIES="${MISSING_DEPENDENCIES}git "
 
-    MN_CONF_ENABLED=$( egrep -s '^[^#]*\s*masternode\s*=\s*1' $HOME/.dash{,core}/dash.conf | wc -l 2>/dev/null)
+    MN_CONF_ENABLED=$( egrep -s '^[^#]*\s*masternodeblsprivkey\s*=' $HOME/.dash{,core}/dash.conf | wc -l 2>/dev/null)
     if [ $MN_CONF_ENABLED -gt 0 ] ; then
         (which unzip 2>&1) >/dev/null || MISSING_DEPENDENCIES="${MISSING_DEPENDENCIES}unzip "
         (which virtualenv 2>&1) >/dev/null || MISSING_DEPENDENCIES="${MISSING_DEPENDENCIES}python-virtualenv "
@@ -402,7 +402,7 @@ _check_dashd_state() {
     if [ $DASHD_HASPID -gt 0 ] && [ $DASHD_PID -gt 0 ]; then
         DASHD_RUNNING=1
     fi
-    $DASH_CLI getinfo >/dev/null 2>&1
+    $DASH_CLI -getinfo >/dev/null 2>&1
     if [ $? -eq 0 ] || [ $? -eq 28 ]; then
         DASHD_RESPONDING=1
     fi
@@ -455,9 +455,9 @@ restart_dashd(){
         die "\n - dashd unexpectedly quit. ${messages["exiting"]}"
     fi
     ok "${messages["done"]}"
-    pending " --> dash-cli getinfo"
+    pending " --> dash-cli -getinfo"
     echo
-    $DASH_CLI getinfo
+    $DASH_CLI -getinfo
     echo
 
 }
@@ -618,7 +618,7 @@ update_dashd(){
 
         # poll it ----------------------------------------------------------------
 
-        MN_CONF_ENABLED=$( egrep -s '^[^#]*\s*masternode\s*=\s*1' $INSTALL_DIR/dash.conf | wc -l 2>/dev/null)
+        MN_CONF_ENABLED=$( egrep -s '^[^#]*\s*masternodeblsprivkey\s*=' $INSTALL_DIR/dash.conf | wc -l 2>/dev/null)
         if [ $MN_CONF_ENABLED -gt 0 ] ; then
 
             # populate it --------------------------------------------------------
@@ -961,7 +961,7 @@ get_dashd_status(){
     DASHD_CONNECTIONS=`netstat -nat | grep ESTA | grep 9999 | wc -l`;
     DASHD_CURRENT_BLOCK=`$DASH_CLI getblockcount 2>/dev/null`
     if [ -z "$DASHD_CURRENT_BLOCK" ] ; then DASHD_CURRENT_BLOCK=0 ; fi
-    DASHD_GETINFO=`$DASH_CLI getinfo 2>/dev/null`;
+    DASHD_GETINFO=`$DASH_CLI -getinfo 2>/dev/null`;
     DASHD_DIFFICULTY=$(echo "$DASHD_GETINFO" | grep difficulty | awk '{print $2}' | sed -e 's/[",]//g')
 
     WEB_BLOCK_COUNT_CHAINZ=`$curl_cmd https://chainz.cryptoid.info/dash/api.dws?q=getblockcount`;
@@ -1057,7 +1057,7 @@ get_dashd_status(){
     MN_PROTX_QUEUE_POSITION=0
     MN_PROTX_SERVICE_VALID=0
 
-    MN_CONF_ENABLED=$( egrep -s '^[^#]*\s*masternode\s*=\s*1' $HOME/.dash{,core}/dash.conf | wc -l 2>/dev/null)
+    MN_CONF_ENABLED=$( egrep -s '^[^#]*\s*masternodeblsprivkey\s*=' $HOME/.dash{,core}/dash.conf | wc -l 2>/dev/null)
     #MN_STARTED=`$DASH_CLI masternode status 2>&1 | grep 'successfully started' | wc -l`
     MN_REGISTERED=0
     [[ -z "$MN_PROTX_RECORD" ]] || MN_REGISTERED=1
